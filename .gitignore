@@ -1,0 +1,94 @@
+# ============================================
+# .gitignore for PWA + Bubblewrap/WebNative project
+# ============================================
+
+# ----- Secrets & signing keys (NEVER commit these) -----
+*.keystore
+*.jks
+*.p12
+*.pem
+*.key
+android.keystore
+android.keystore.pwd
+*.pwd
+keystore.properties
+twa-manifest.json.bak
+
+# ----- Bubblewrap build artifacts -----
+# These get regenerated every time you build
+/app/
+/gradle/
+/.gradle/
+build/
+.gradletasknamecache
+gradle-wrapper.jar
+gradlew
+gradlew.bat
+local.properties
+app-release-bundle.aab
+app-release-signed.apk
+app-release-unsigned.apk
+app-debug.apk
+/output-metadata.json
+assetlinks.json
+
+# ----- WebNative / generic web-wrapper output -----
+# Many wrappers spit builds into one of these
+/dist/
+/build/
+/out/
+/native/
+/webnative/
+*.aab
+*.apk
+*.ipa
+
+# ----- Node / npm -----
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.npm/
+.yarn/
+
+# ----- Android SDK / JDK (Bubblewrap downloads these locally on some setups) -----
+.bubblewrap/
+android_sdk/
+jdk/
+
+# ----- Environment variables -----
+.env
+.env.local
+.env.*.local
+
+# ----- Editor / IDE -----
+.vscode/
+!.vscode/settings.json.example
+.idea/
+*.iml
+*.swp
+*.swo
+*~
+
+# ----- OS junk -----
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ----- Logs -----
+*.log
+logs/
+
+# ----- Netlify -----
+.netlify/
+
+# ----- Service worker dev cache (optional - keep sw.js itself!) -----
+# Only ignore generated/precache files, never sw.js
+workbox-*.js
+precache-manifest.*.js

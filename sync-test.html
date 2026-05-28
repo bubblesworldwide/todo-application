@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Sync to Folder — Mobile Capability Test</title>
+<style>
+  :root {
+    --bg: #fbf7f0;
+    --ink: #1a1612;
+    --muted: #6b6258;
+    --line: #d8cfc0;
+    --ok: #2d6a4f;
+    --warn: #b8860b;
+    --bad: #9a2a2a;
+    --accent: #c44536;
+    --card: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14110d;
+      --ink: #f5efe4;
+      --muted: #9a8f80;
+      --line: #2e2823;
+      --ok: #7fc9a4;
+      --warn: #e2c068;
+      --bad: #e87a7a;
+      --accent: #e8845e;
+      --card: #1c1814;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+    line-height: 1.55;
+    padding: 1.25rem;
+    padding: max(1.25rem, env(safe-area-inset-top)) max(1.25rem, env(safe-area-inset-right)) max(1.25rem, env(safe-area-inset-bottom)) max(1.25rem, env(safe-area-inset-left));
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  header { border-bottom: 1px solid var(--line); padding-bottom: 1rem; margin-bottom: 1.25rem; }
+  h1 {
+    font-family: ui-serif, Georgia, serif;
+    font-weight: 700;
+    font-size: clamp(1.6rem, 5vw, 2.1rem);
+    margin: 0 0 0.25rem;
+    letter-spacing: -0.01em;
+  }
+  .subtitle { color: var(--muted); font-style: italic; font-size: 0.95rem; }
+  h2 {
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+    margin: 1.75rem 0 0.75rem;
+    color: var(--accent);
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1rem 1.1rem;
+    margin-bottom: 0.7rem;
+  }
+  .row { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+  .label { font-weight: 600; flex: 1; }
+  .status {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 0.85rem;
+    padding: 0.15rem 0.55rem;
+    border-radius: 3px;
+    white-space: nowrap;
+    font-weight: 700;
+  }
+  .status.ok   { background: rgba(45,106,79,0.15);  color: var(--ok); }
+  .status.warn { background: rgba(184,134,11,0.15); color: var(--warn); }
+  .status.bad  { background: rgba(154,42,42,0.15);  color: var(--bad); }
+  .detail { color: var(--muted); font-size: 0.88rem; margin-top: 0.4rem; }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    background: var(--ink);
+    color: var(--bg);
+    border: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 0.5rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  button:active { transform: translateY(1px); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  #log {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 0.8rem;
+    margin-top: 0.75rem;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 0.82rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 280px;
+    overflow-y: auto;
+    color: var(--muted);
+  }
+  .verdict {
+    margin-top: 1.5rem;
+    padding: 1rem 1.1rem;
+    border-left: 4px solid var(--accent);
+    background: var(--card);
+    border-radius: 0 4px 4px 0;
+  }
+  .verdict h3 { margin: 0 0 0.4rem; font-size: 1rem; }
+  footer {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-style: italic;
+  }
+  code {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    background: rgba(196,69,54,0.08);
+    padding: 0.05rem 0.35rem;
+    border-radius: 3px;
+    font-size: 0.88em;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Sync-to-Folder Capability Test</h1>
+  <div class="subtitle">Run this on each mobile device to see what actually works.</div>
+</header>
+
+<h2>1. Environment</h2>
+<div class="card">
+  <div class="row"><span class="label">Platform</span><span class="status" id="s-platform">—</span></div>
+  <div class="detail" id="d-platform"></div>
+</div>
+<div class="card">
+  <div class="row"><span class="label">Running standalone (PWA / TWA)</span><span class="status" id="s-standalone">—</span></div>
+  <div class="detail" id="d-standalone"></div>
+</div>
+<div class="card">
+  <div class="row"><span class="label">Secure context (HTTPS)</span><span class="status" id="s-secure">—</span></div>
+</div>
+
+<h2>2. API Support</h2>
+<div class="card">
+  <div class="row"><span class="label"><code>showDirectoryPicker</code></span><span class="status" id="s-dir">—</span></div>
+  <div class="detail">Required for true "sync to folder."</div>
+</div>
+<div class="card">
+  <div class="row"><span class="label"><code>showSaveFilePicker</code></span><span class="status" id="s-save">—</span></div>
+  <div class="detail">Fallback: save one file at a time.</div>
+</div>
+<div class="card">
+  <div class="row"><span class="label"><code>navigator.storage.getDirectory</code> (OPFS)</span><span class="status" id="s-opfs">—</span></div>
+  <div class="detail">Private app-only storage. Works on iOS too, but not user-visible.</div>
+</div>
+<div class="card">
+  <div class="row"><span class="label">Anchor download fallback</span><span class="status" id="s-anchor">—</span></div>
+  <div class="detail">The lowest common denominator — works almost everywhere.</div>
+</div>
+
+<h2>3. Live Tests</h2>
+<div class="card">
+  <button id="btn-dir">Test: pick a folder &amp; write a file</button>
+  <button id="btn-save">Test: save a single file</button>
+  <button id="btn-opfs">Test: write to private OPFS storage</button>
+  <button id="btn-anchor">Test: download via anchor tag</button>
+  <div id="log">Logs will appear here…</div>
+</div>
+
+<div class="verdict" id="verdict">
+  <h3>Verdict</h3>
+  <div id="verdict-text">Run the checks above to see what your sync strategy should be on this device.</div>
+</div>
+
+<footer>
+  Test page generated for the todo app at <code>todotets.netlify.app</code>. Drop this file in your repo root and open <code>/sync-test.html</code> on each device.
+</footer>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const setStatus = (el, kind, text) => {
+    el.className = 'status ' + kind;
+    el.textContent = text;
+  };
+  const log = msg => {
+    const el = $('log');
+    const ts = new Date().toLocaleTimeString();
+    el.textContent += `\n[${ts}] ${msg}`;
+    el.scrollTop = el.scrollHeight;
+  };
+
+  // ----- Environment -----
+  const ua = navigator.userAgent;
+  let platform = 'Unknown';
+  if (/iPhone|iPad|iPod/.test(ua)) platform = 'iOS';
+  else if (/Android/.test(ua)) platform = 'Android';
+  else if (/Windows/.test(ua)) platform = 'Windows';
+  else if (/Mac/.test(ua)) platform = 'macOS';
+  else if (/Linux/.test(ua)) platform = 'Linux';
+  setStatus($('s-platform'), 'ok', platform);
+  $('d-platform').textContent = ua;
+
+  const standalone = window.matchMedia('(display-mode: standalone)').matches
+                  || window.navigator.standalone === true;
+  setStatus($('s-standalone'), standalone ? 'ok' : 'warn', standalone ? 'Yes' : 'No (in browser tab)');
+  $('d-standalone').textContent = standalone
+    ? 'Running from home-screen install or TWA shell.'
+    : 'Open this page from your installed app for accurate results.';
+
+  setStatus($('s-secure'), window.isSecureContext ? 'ok' : 'bad',
+            window.isSecureContext ? 'Yes' : 'No');
+
+  // ----- API support -----
+  const hasDirPicker  = typeof window.showDirectoryPicker === 'function';
+  const hasSavePicker = typeof window.showSaveFilePicker === 'function';
+  const hasOPFS       = !!(navigator.storage && navigator.storage.getDirectory);
+  const hasAnchor     = typeof document.createElement('a').download === 'string';
+
+  setStatus($('s-dir'),    hasDirPicker  ? 'ok' : 'bad',  hasDirPicker  ? 'Supported' : 'Not supported');
+  setStatus($('s-save'),   hasSavePicker ? 'ok' : 'bad',  hasSavePicker ? 'Supported' : 'Not supported');
+  setStatus($('s-opfs'),   hasOPFS       ? 'ok' : 'warn', hasOPFS       ? 'Supported' : 'Not supported');
+  setStatus($('s-anchor'), hasAnchor     ? 'ok' : 'bad',  hasAnchor     ? 'Supported' : 'Not supported');
+
+  // ----- Verdict -----
+  let verdict;
+  if (hasDirPicker) {
+    verdict = 'True sync-to-folder works here. Use showDirectoryPicker() and store the handle in IndexedDB to reuse it across sessions.';
+  } else if (hasSavePicker) {
+    verdict = 'No folder picker, but you can prompt the user to save individual export files.';
+  } else if (hasOPFS) {
+    verdict = 'No user-visible folder access. You can sync to OPFS (private app storage) and offer a "Download backup" button as the export path.';
+  } else if (hasAnchor) {
+    verdict = 'Only download-via-anchor works. Treat sync as periodic backup downloads, not a live folder.';
+  } else {
+    verdict = 'No file APIs available. Fall back to cloud sync (e.g. push JSON to a server or to GitHub via API).';
+  }
+  $('verdict-text').textContent = verdict;
+
+  // ----- Live tests -----
+  $('btn-dir').disabled  = !hasDirPicker;
+  $('btn-save').disabled = !hasSavePicker;
+  $('btn-opfs').disabled = !hasOPFS;
+  $('btn-anchor').disabled = !hasAnchor;
+
+  const sample = JSON.stringify({
+    test: 'sync-to-folder test',
+    when: new Date().toISOString(),
+    todos: [
+      { id: 1, text: 'Test sync', done: false },
+      { id: 2, text: 'Confirm file landed in folder', done: false }
+    ]
+  }, null, 2);
+
+  $('btn-dir').onclick = async () => {
+    try {
+      log('Requesting directory…');
+      const dir = await window.showDirectoryPicker({ mode: 'readwrite' });
+      log('Got handle for: ' + dir.name);
+      const file = await dir.getFileHandle('todo-sync-test.json', { create: true });
+      const w = await file.createWritable();
+      await w.write(sample);
+      await w.close();
+      log('✓ Wrote todo-sync-test.json into "' + dir.name + '".');
+    } catch (e) {
+      log('✗ ' + e.name + ': ' + e.message);
+    }
+  };
+
+  $('btn-save').onclick = async () => {
+    try {
+      log('Requesting save dialog…');
+      const file = await window.showSaveFilePicker({
+        suggestedName: 'todo-sync-test.json',
+        types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }]
+      });
+      const w = await file.createWritable();
+      await w.write(sample);
+      await w.close();
+      log('✓ Saved.');
+    } catch (e) {
+      log('✗ ' + e.name + ': ' + e.message);
+    }
+  };
+
+  $('btn-opfs').onclick = async () => {
+    try {
+      log('Opening OPFS root…');
+      const root = await navigator.storage.getDirectory();
+      const file = await root.getFileHandle('todo-sync-test.json', { create: true });
+      const w = await file.createWritable();
+      await w.write(sample);
+      await w.close();
+      const read = await (await file.getFile()).text();
+      log('✓ OPFS write OK. Read back ' + read.length + ' chars.');
+    } catch (e) {
+      log('✗ ' + e.name + ': ' + e.message);
+    }
+  };
+
+  $('btn-anchor').onclick = () => {
+    try {
+      const blob = new Blob([sample], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'todo-sync-test.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      log('✓ Download triggered. Check your Downloads folder.');
+    } catch (e) {
+      log('✗ ' + e.name + ': ' + e.message);
+    }
+  };
+})();
+</script>
+</body>
+</html>
